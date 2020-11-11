@@ -244,6 +244,9 @@ type GoLog struct {
 	//Flag to indicate if the log file will contain multiple executions
 	appendLog bool
 
+	//Flag to indicate if the broadcast is on
+	broadcast bool
+
 	//Priority level at which all events are logged
 	priority LogPriority
 
@@ -490,6 +493,22 @@ func (gv *GoLog) LogLocalEvent(LogMessage string, opts GoLogOptions) (logSuccess
 	return
 }
 
+// StartBroadcast is called just prior to starting RPC broadcast
+// Log a "local event" and flip the broadcast flag to true
+func (gv *GoLog) StartBroadcast(opts GoLogOptions) {
+	gv.mutex.Lock()
+	gv.tickClock()
+	gv.logWriteWrapper("Starting RPC Broadcast", "Something went wrong, could not log prepare send", opts.Priority)
+	gv.broadcast = true
+}
+
+// StopBroadcast is called once RPC broadcast is done
+// Flip the broadcast flag back to false
+func (gv *GoLog) StopBroadcast() {
+	gv.broadcast = false
+	gv.mutex.Unlock()
+}
+
 //PrepareSend is meant to be used immediately before sending.
 //LogMessage will be logged along with the time of the send
 //buf is encode-able data (structure or basic type)
@@ -502,24 +521,35 @@ func (gv *GoLog) LogLocalEvent(LogMessage string, opts GoLogOptions) (logSuccess
 func (gv *GoLog) PrepareSend(mesg string, buf interface{}, opts GoLogOptions) (encodedBytes []byte) {
 
 	//Converting Vector Clock from Bytes and Updating the gv clock
-	gv.mutex.Lock()
-	if opts.Priority >= gv.priority {
-		gv.tickClock()
+	if gv.broadcast == false {
+		gv.mutex.Lock()
+		if opts.Priority >= gv.priority {
+			gv.tickClock()
+			gv.logWriteWrapper(mesg, "Something went wrong, could not log prepare send", opts.Priority)
 
-		gv.logWriteWrapper(mesg, "Something went wrong, could not log prepare send", opts.Priority)
+			d := VClockPayload{Pid: gv.pid, VcMap: gv.currentVC.GetMap(), Payload: buf}
 
+			// encode the Clock Payload
+			var err error
+			encodedBytes, err = gv.encodingStrategy(&d)
+			if err != nil {
+				gv.logger.Println(err.Error())
+			}
+
+			// return encodedBytes which can be sent off and received on the other end!
+		}
+		gv.mutex.Unlock()
+
+	} else {
+		// Broadcast: do not acquire the lock as it is already acquired
 		d := VClockPayload{Pid: gv.pid, VcMap: gv.currentVC.GetMap(), Payload: buf}
 
-		// encode the Clock Payload
 		var err error
 		encodedBytes, err = gv.encodingStrategy(&d)
 		if err != nil {
 			gv.logger.Println(err.Error())
 		}
-
-		// return encodedBytes which can be sent off and received on the other end!
 	}
-	gv.mutex.Unlock()
 	return
 }
 
