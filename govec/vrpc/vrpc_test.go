@@ -9,7 +9,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/DistributedClocks/GoVector/govec"
+	"github.com/savreline/GoVector/govec"
 )
 
 var done chan int = make(chan int, 1)

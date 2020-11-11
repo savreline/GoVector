@@ -10,7 +10,7 @@ import (
 	"net"
 	"net/rpc"
 
-	"github.com/DistributedClocks/GoVector/govec"
+	"github.com/savreline/GoVector/govec"
 )
 
 //RPCDial connects to a RPC server at the specified network address. The

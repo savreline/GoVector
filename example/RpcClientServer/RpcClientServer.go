@@ -8,8 +8,8 @@ import (
 	"net/rpc"
 	"time"
 
-	"github.com/DistributedClocks/GoVector/govec"
-	"github.com/DistributedClocks/GoVector/govec/vrpc"
+	"github.com/savreline/GoVector/govec"
+	"github.com/savreline/GoVector/govec/vrpc"
 )
 
 var done chan int = make(chan int, 1)

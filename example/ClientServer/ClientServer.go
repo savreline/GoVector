@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/DistributedClocks/GoVector/govec"
+	"github.com/savreline/GoVector/govec"
 )
 
 //Hardcoded client/sever port values, and total messages sent

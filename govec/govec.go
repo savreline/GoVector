@@ -11,8 +11,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/DistributedClocks/GoVector/govec/vclock"
-	"github.com/daviddengcn/go-colortext"
+	ct "github.com/daviddengcn/go-colortext"
+	"github.com/savreline/GoVector/govec/vclock"
 	"github.com/vmihailenco/msgpack"
 )
 

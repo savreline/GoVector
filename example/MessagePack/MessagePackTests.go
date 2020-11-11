@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/DistributedClocks/GoVector/govec/vclock"
+	"github.com/savreline/GoVector/govec/vclock"
 	"github.com/vmihailenco/msgpack"
 )
 

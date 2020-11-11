@@ -3,7 +3,7 @@ package govec_test
 import (
 	"fmt"
 
-	"github.com/DistributedClocks/GoVector/govec"
+	"github.com/savreline/GoVector/govec"
 )
 
 //Basic example of GoVectors key functions
