@@ -495,10 +495,10 @@ func (gv *GoLog) LogLocalEvent(LogMessage string, opts GoLogOptions) (logSuccess
 
 // StartBroadcast is called just prior to starting RPC broadcast
 // Log a "local event" and flip the broadcast flag to true
-func (gv *GoLog) StartBroadcast(opts GoLogOptions) {
+func (gv *GoLog) StartBroadcast(msg string, opts GoLogOptions) {
 	gv.mutex.Lock()
 	gv.tickClock()
-	gv.logWriteWrapper("Starting RPC Broadcast", "Something went wrong, could not log prepare send", opts.Priority)
+	gv.logWriteWrapper(msg, "Something went wrong, could not log prepare send", opts.Priority)
 	gv.broadcast = true
 }
 
@@ -553,13 +553,16 @@ func (gv *GoLog) PrepareSend(mesg string, buf interface{}, opts GoLogOptions) (e
 	return
 }
 
-func (gv *GoLog) mergeIncomingClock(mesg string, e VClockPayload, Priority LogPriority) {
+// MergeIncomingClock merges incoming clock
+func (gv *GoLog) MergeIncomingClock(mesg string, clock vclock.VClock, Priority LogPriority) {
 
 	// First, tick the local clock
-	gv.tickClock()
-	gv.currentVC.Merge(e.VcMap)
+	gv.mutex.Lock()
+	// gv.tickClock()
+	gv.currentVC.Merge(clock)
 
-	gv.logWriteWrapper(mesg, "Something went Wrong, Could not Log!", Priority)
+	// gv.logWriteWrapper(mesg, "Something went Wrong, Could not Log!", Priority)
+	gv.mutex.Unlock()
 }
 
 //UnpackReceive is used to unmarshall network data into local structures.
@@ -585,7 +588,7 @@ func (gv *GoLog) UnpackReceive(mesg string, buf []byte, unpack interface{}, opts
 		}
 
 		// Increment and merge the incoming clock
-		gv.mergeIncomingClock(mesg, e, opts.Priority)
+		gv.MergeIncomingClock(mesg, e.VcMap, opts.Priority)
 	}
 	gv.mutex.Unlock()
 
