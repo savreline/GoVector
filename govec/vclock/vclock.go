@@ -188,3 +188,31 @@ func (vc VClock) Compare(other VClock, cond Condition) bool {
 	}
 	return cond&otherIs != 0
 }
+
+// CompareClocks compares clocks https://www.cs.rutgers.edu/~pxk/417/notes/clocks/index.html
+func (vc VClock) CompareClocks(other VClock) int {
+	greater := false
+	less := false
+
+	for id := range other {
+		if vc[id] > other[id] {
+			greater = true
+		} else if vc[id] < other[id] {
+			less = true
+		}
+	}
+	for id := range vc {
+		if vc[id] > other[id] {
+			greater = true
+		} else if vc[id] < other[id] {
+			less = true
+		}
+	}
+	if greater && less {
+		return 1
+	} else if less {
+		return 2
+	} else {
+		return 3
+	}
+}
