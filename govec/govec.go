@@ -481,16 +481,17 @@ func (gv *GoLog) tickClock() {
 //coded string is also printed on the console.
 //* LogMessage (string) : Message to be logged
 //* Priority (LogPriority) : Priority at which the message is to be logged
-func (gv *GoLog) LogLocalEvent(LogMessage string, opts GoLogOptions) (logSuccess bool) {
-	logSuccess = true
+func (gv *GoLog) LogLocalEvent(LogMessage string, opts GoLogOptions) vclock.VClock {
+	// logSuccess = true
 	gv.mutex.Lock()
 	if opts.Priority >= gv.priority {
 		prefix := prefixLookup[opts.Priority]
 		gv.tickClock()
-		logSuccess = gv.logWriteWrapper(prefix+"-"+LogMessage, "Something went Wrong, Could not Log LocalEvent!", opts.Priority)
+		gv.logWriteWrapper(prefix+"-"+LogMessage, "Something went Wrong, Could not Log LocalEvent!", opts.Priority)
 	}
+	res := gv.GetCurrentVC()
 	gv.mutex.Unlock()
-	return
+	return res
 }
 
 // StartBroadcast is called just prior to starting RPC broadcast
