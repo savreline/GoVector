@@ -216,3 +216,17 @@ func (vc VClock) CompareClocks(other VClock) int {
 		return 3
 	}
 }
+
+// CompareBroadcastClock is ...
+func (vc VClock) CompareBroadcastClock(clock VClock, pid string) (bool, int) {
+	cnt := 0
+	for k := range clock {
+		if k != pid && clock[k] > vc[k] {
+			cnt++
+		}
+	}
+	if cnt > 1 {
+		return false, cnt
+	}
+	return true, cnt
+}

@@ -355,6 +355,14 @@ func (gv *GoLog) GetCurrentVC() vclock.VClock {
 	return gv.currentVC
 }
 
+//GetCurrentVCSafe returns the current vector clock in a thread-safe way
+func (gv *GoLog) GetCurrentVCSafe() vclock.VClock {
+	gv.mutex.Lock()
+	res := gv.currentVC.Copy()
+	gv.mutex.Unlock()
+	return res
+}
+
 //Sets the Encoding and Decoding functions which are to be used by the logger
 //Encoder (func(interface{}) ([]byte, error)) : function to be used for encoding
 //Decoder (func([]byte, interface{}) error) : function to be used for decoding
