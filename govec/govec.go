@@ -504,11 +504,13 @@ func (gv *GoLog) LogLocalEvent(LogMessage string, opts GoLogOptions) vclock.VClo
 
 // StartBroadcast is called just prior to starting RPC broadcast
 // Log a "local event" and flip the broadcast flag to true
-func (gv *GoLog) StartBroadcast(msg string, opts GoLogOptions) {
+func (gv *GoLog) StartBroadcast(msg string, opts GoLogOptions) vclock.VClock {
 	gv.mutex.Lock()
+	res := gv.currentVC.Copy()
 	gv.tickClock()
 	gv.logWriteWrapper(msg, "Something went wrong, could not log prepare send", opts.Priority)
 	gv.broadcast = true
+	return res
 }
 
 // StopBroadcast is called once RPC broadcast is done
